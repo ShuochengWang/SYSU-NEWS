@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block scripts %}
+{{ super() }}
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$('button#add').click(function(e){
+		$.getJSON($SCRIPT_ROOT + '/add_note', {
+			text: $(e.currentTarget).parent().prev().val()
+		}, function(data){
+			var li = $(e.currentTarget).parentsUntil('ul').last();
+			li.before('<li class="list-group-item"><div><p>' + data.text + '</p>\
+			  	<button class="btn btn-success" type="submit" id="done" value=' + data.id + '>搞定!</button>\
+			  	</div></li>');
+			$(e.currentTarget).parent().prev().val("")
+		});
+		return false;
+	});
+
+	$('body').delegate('button#done', 'click', function(e){
+		$.getJSON($SCRIPT_ROOT + '/del_note', {
+			id: $(e.currentTarget).val()
+		}, function(data){
+			$(e.currentTarget).parent().parent().remove();
+		});
+		return false;
+	});
+});
+</script>
+{% endblock %}
+
+
+{% block page_content %}
+<div class="row">
+	<div class="col-md-9 blog-main">
+		<div class="jumbotron">
+			<h1>你好，{{current_user.username}} !</h1>
+			{% if not data %}
+			<p>请先定制您的偏好设置信息</p>
+			{% endif %}
+		</div>
+	
+		<div class="page-content">
+			<!-- Nav tabs -->
+			<ul class="nav nav-pills" role="tablist">
+			{% for item in data %}
+				{% if active == item.id %}
+				<li role="presentation" class="active"><a href="#tag{{ item.id }}" role="tab" data-toggle="tab"><b>{{ item.tag }}</b></a></li>
+				{% else %}
+				<li role="presentation"><a href="#tag{{ item.id }}" role="tab" data-toggle="tab"><b>{{ item.tag }}</b></a></li>
+				{% endif %}
+			{% endfor %}
+			</ul>
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<br>
+				{% for item in data %}
+				{% if active == item.id %}
+			  	<div role="tabpanel" class="tab-pane fade in active" id="tag{{ item.id }}">
+			  	{% else %}
+			  	<div role="tabpanel" class="tab-pane fade" id="tag{{ item.id }}">
+			  	{% endif %}
+			  		<div class="list-group">
+			  			{% for article in item.articles %}
+			  			<a href="{{ url_for('.read', id=article.id) }}" 
+			  				class="{{ loop.cycle('list-group-item list-group-item-success', 'list-group-item 	list-group-item-info', 'list-group-item list-group-item-warning', 'list-group-item 	list-group-item-danger') }}">
+			  				<h4 class="list-group-item-heading">{{ article.title }}</h4>
+			  				<p class="list-group-item-text">时间： {{ article.date }}</p>
+  							<p class="list-group-item-text">类别： {{ article.belong }} —— {{ article.tag }}</p>
+  							<p class="text-right">更新于 {{ moment(article.timestamp).fromNow() }}</p>
+			  			</a>
+			  			{% endfor %}
+			  			{% if item.pagination %}
+			  			<div class="pagination">
+			  				{{ macros.pagination_widget(item.pagination, '.index', active=item.id) }}
+			  			</div>
+			  			{% endif %}
+			  		</div>
+			  	</div>
+			  	{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-3 blog-sidebar">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">便签</h3>
+			</div>
+		  	<!-- List group -->
+		    <ul class="list-group">
+		      {% for item in todo %}
+		      <li class="list-group-item">
+		  		<div>
+		  			<p>{{ item.text }}</p>
+		  			<button class="btn btn-success" type="submit" id="done" value="{{ item.id }}">搞定!</button>
+		  		</div>
+		      </li>
+		      {% endfor %}
+
+		      <li class="list-group-item">
+		  		<div class="input-group">
+					<input type="text" class="form-control" placeholder="记点什么">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="submit" id="add">添加</button>
+					</span>
+				</div><!-- /input-group -->
+		      </li>
+		    </ul>
+		</div>
+	</div>
+</div><!-- /.row -->
+{% endblock %}

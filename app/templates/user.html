@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block page_content %}
+	<div class="jumbotron">
+		<h2>收藏夹，设置</h2>
+		<p></p>
+		<a href="{{ url_for('auth.reset_password1') }}" class="btn btn-primary" role="button">重设密码</a>
+		{% if not current_user.confirmed %}
+		<a href="{{ url_for('auth.confirm_email_later') }}" class="btn btn-primary" role="button">邮箱确认</a>
+		{% endif %}
+	</div>
+	<div class="page_content">
+
+		<p></p>
+		<div class="list-group">
+			  {% for favorite in favorites %}
+			  	<a href="{{ url_for('.read', id=favorite.article.id) }}" 
+			  	class="{{ loop.cycle('list-group-item list-group-item-success', 'list-group-item 	list-group-item-info', 'list-group-item list-group-item-warning', 'list-group-item 	list-group-item-danger') }}">
+			  		<h4 class="list-group-item-heading">{{ favorite.article.title }}</h4>
+			  		<p class="list-group-item-text">收藏日期: {{ moment(favorite.timestamp).format('L') }}</p>
+			  	</a>
+			  {% endfor %}
+			<div class="pagination">
+				{{ macros.pagination_widget(pagination, endpoint, username = user.username) }}
+			</div>
+		</div>
+	</div>
+
+
+	
+{% endblock %}

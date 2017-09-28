@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}SYSU NEWS - 文章{% endblock %}
+
+{% block page_content %}
+<div class="jumbotron">
+	<h2>{{ article.title }}</h2>
+  {% if current_user.is_authenticated %}
+      {% if not current_user.is_favoriting(article) %}
+        <a href="{{ url_for('.favorite', id=article.id) }}" class="btn btn-primary">
+        <span class="glyphicon glyphicon-star-empty"></span> 收藏</a>
+      {% else %}
+        <a href="{{ url_for('.un_favorite', id=article.id) }}" class="btn btn-primary">
+        <span class="glyphicon glyphicon-star"></span> 取消收藏</a>
+      {% endif %}
+  {% endif %}
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+  	<p class="lead text-center">日期： {{ article.date }}  原始链接: <a href="{{ article.link }}">{{ article.link }}</a></p>
+
+    {% if current_user.is_administrator() %}
+    <a href="{{ url_for('.edit_article', id=article.id) }}" class="btn btn-primary">编辑</a>
+    <a href="{{ url_for('.delete_article', id=article.id) }}" class="btn btn-primary">删除</a>
+    {% endif %}
+  </div>
+
+  <div class="panel-footer">
+    {% for sentence in text %}
+			<p>{{ sentence }}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

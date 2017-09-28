@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block page_content %}
+<div class="row">
+	<div class="jumbotron">
+		<h1>你好</h1>
+		<p>请注册或登录来定制或查看你想要的信息</p>
+		<p>	<a class="btn btn-primary btn-lg" href="{{url_for('auth.register')}}" role="button">注册</a>
+			或者 <a class="btn btn-success btn-lg" href="{{url_for('auth.login')}}" role="button">登录</a>
+		</p>
+	</div>
+	<div role="tabpanel" class="tab-pane active">
+  		<div class="list-group">
+			{% for article in articles %}
+			<a href="{{ url_for('.read', id=article.id) }}" 
+		  		class="{{ loop.cycle('list-group-item list-group-item-success', 'list-group-item list-group-item-info', 'list-group-item list-group-item-warning', 'list-group-item list-group-item-danger') }}">
+  				<h4 class="list-group-item-heading">{{ article.title }}</h4>
+  				<p class="list-group-item-text">时间： {{ article.date }}</p>
+  				<p class="list-group-item-text">类别： {{ article.belong }} —— {{ article.tag }}</p>
+  				<p class="text-right">更新于 {{ moment(article.timestamp).fromNow() }}</p>
+  			</a>
+  			{% endfor %}
+  			{% if pagination %}
+  			<div class="pagination">
+  				{{ macros.pagination_widget(pagination, '.index') }}
+  			</div>
+  			{% endif %}
+  		</div>
+  	</div>
+</div>
+{% endblock %}
